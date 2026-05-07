@@ -42,8 +42,10 @@
         </ul>
 
         <div class="d-flex align-items-center gap-3">
-          <div class="nav-avatar-chip">{{ auth()->user()->initials }}</div>
-          <span style="font-size:14px; color:#7a8fa0;">{{ auth()->user()->name }}</span>
+  <img src="{{ auth()->user()->avatarUrl }}" 
+       style="width:36px; height:36px; border-radius:10px; object-fit:cover; border:2px solid rgba(46,65,86,0.1);" 
+       alt="{{ auth()->user()->initials }}">
+  <span style="font-size:14px; color:#7a8fa0;">{{ auth()->user()->name }}</span>
           <div class="dropdown">
             <button class="btn btn-sm p-0 border-0 bg-transparent" data-bs-toggle="dropdown" style="color:#7a8fa0;">
               <i class="mdi mdi-chevron-down" style="font-size:18px;"></i>

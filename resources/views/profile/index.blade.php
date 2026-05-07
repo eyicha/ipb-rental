@@ -281,17 +281,18 @@
           </div>
 
           {{-- Lokasi --}}
-          <div class="prof-form-group">
-            <label class="prof-label" for="p-lokasi">Lokasi / Alamat Kos</label>
-            <input type="text" id="p-lokasi" name="lokasi" class="prof-input"
-              value="{{ old('lokasi', $user->lokasi) }}" placeholder="Contoh: Asrama TPB Blok C, Dramaga">
-            <span class="prof-hint">Digunakan penyewa untuk menjemput / mengembalikan barang</span>
-            @error('lokasi')<span class="prof-hint prof-hint--error">{{ $message }}</span>@enderror
-          </div>
+<div class="prof-form-group">
+  <x-lokasi-picker 
+    name="lokasi" 
+    :value="old('lokasi', $user->lokasi ?? null)" 
+    label="Lokasi / Gedung IPB" />
+  <span class="prof-hint">Digunakan untuk mencocokkan rekomendasi item terdekat</span>
+  @error('lokasi')<span class="prof-hint prof-hint--error">{{ $message }}</span>@enderror
+</div>
 
-          <div>
-            <button type="submit" class="prof-btn-save">Simpan Perubahan</button>
-          </div>
+<div>
+  <button type="submit" class="prof-btn-save">Simpan Perubahan</button>
+</div>
         </form>
       </div>
     </div>

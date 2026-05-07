@@ -41,6 +41,17 @@ class RentalController extends Controller
             return back()->with('error', 'Kamu tidak bisa menyewa item milikmu sendiri.');
         }
 
+    // Cek verifikasi KTM
+$ktmVerified = Auth::user()
+    ->verifications()
+    ->where('tipe', 'ktm')
+    ->where('status', 'verified')
+    ->exists();
+
+if (!$ktmVerified) {
+    return back()->with('error', 'Kamu harus memverifikasi KTM terlebih dahulu sebelum menyewa. Upload KTM di halaman Profil.');
+}
+
         $start    = \Carbon\Carbon::parse($validated['tanggal_mulai']);
         $end      = \Carbon\Carbon::parse($validated['tanggal_selesai']);
         $durasi   = $start->diffInDays($end);
@@ -131,16 +142,21 @@ private function returnRental(Rental $rental, $userId): void
     }
 
     private function rateRental(Rental $rental, $userId, Request $request): void
-    {
-        abort_if($rental->penyewa_id !== $userId || $rental->status !== 'finished' || $rental->rating !== null, 403);
-        $request->validate(['rating' => 'required|integer|between:1,5', 'ulasan' => 'nullable|string|max:500']);
-        $rental->update(['rating' => $request->rating, 'ulasan' => $request->ulasan]);
+{
+    abort_if($rental->penyewa_id !== $userId || $rental->status !== 'finished' || $rental->rating !== null, 403);
+    $request->validate(['rating' => 'required|integer|between:1,5', 'ulasan' => 'nullable|string|max:500']);
+    $rental->update(['rating' => (int) $request->rating, 'ulasan' => $request->ulasan]);
 
-        // Recalculate item rating
-        $item = $rental->item;
-        $avg  = Rental::where('item_id', $item->id)->whereNotNull('rating')->avg('rating');
-        $item->update(['rating_avg' => round($avg, 1)]);
-    }
+    // Update rating item
+    $item = $rental->item;
+    $avgItem = Rental::where('item_id', $item->id)->whereNotNull('rating')->avg('rating');
+    $item->update(['rating_avg' => round($avgItem, 1)]);
+
+    // ← TAMBAHKAN INI: Update rating pemilik
+    $pemilik = $rental->pemilik;
+    $avgPemilik = Rental::where('pemilik_id', $pemilik->id)->whereNotNull('rating')->avg('rating');
+    $pemilik->update(['rating_avg' => round($avgPemilik, 1)]);
+}
 
     private function authorizeRental(Rental $rental): void
     {

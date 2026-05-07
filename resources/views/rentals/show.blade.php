@@ -62,8 +62,15 @@
           @if($rental->item->deposit > 0)
           <div class="d-flex justify-content-between"><span style="font-size:13px; color:#7a8fa0;">Deposit</span><span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">Rp {{ number_format($rental->item->deposit, 0, ',', '.') }}</span></div>
           @endif
-          <div class="d-flex justify-content-between"><span style="font-size:14px; font-weight:700; color:var(--ipb-navy);">Total</span><span style="font-size:16px; font-weight:800; color:var(--ipb-navy);">Rp {{ number_format($rental->total_harga, 0, ',', '.') }}</span></div>
-        </div>
+<div class="d-flex justify-content-between">
+  <span style="font-size:14px; font-weight:700; color:var(--ipb-navy);">Total Bayar</span>
+  <span style="font-size:16px; font-weight:800; color:var(--ipb-navy);">
+    Rp {{ number_format($rental->total_harga + $rental->deposit, 0, ',', '.') }}
+  </span>
+</div>
+<div style="font-size:11px; color:#7a8fa0; margin-top:6px; line-height:1.5;">
+  * Sudah termasuk deposit Rp {{ number_format($rental->deposit, 0, ',', '.') }} yang akan dikembalikan setelah barang kembali.
+</div>        </div>
       </div>
  
       @if($rental->catatan)
@@ -341,33 +348,58 @@ async function bayarDP(btn) {
     }
  
     window.snap.pay(data.snap_token, {
-      onSuccess(result) {
+    onSuccess(result) {
         fetch(urlSuccess, {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': csrfToken,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            order_id:           result.order_id,
-            transaction_status: result.transaction_status,
-            payment_type:       result.payment_type,
-          }),
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id:           result.order_id,
+                transaction_status: result.transaction_status,
+                payment_type:       result.payment_type,
+            }),
         }).finally(() => window.location.reload());
-      },
-      onPending() {
-        window.location.reload();
-      },
-      onError(result) {
+    },
+    onPending() {
+        const pollInterval = setInterval(async () => {
+            try {
+                const statusRes = await fetch('{{ route('payments.status', $rental) }}', {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const statusData = await statusRes.json();
+
+                if (statusData.status === 'success') {
+                    clearInterval(pollInterval);
+                    fetch('{{ route('rentals.pay.success', $rental) }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            order_id: statusData.order_id,
+                            transaction_status: 'settlement',
+                            payment_type: 'qris',
+                        }),
+                    }).finally(() => window.location.reload());
+                }
+            } catch(e) {}
+        }, 3000);
+
+        setTimeout(() => clearInterval(pollInterval), 15 * 60 * 1000);
+    },
+    onError(result) {
         alert('Pembayaran gagal: ' + (result.status_message ?? 'Unknown error'));
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-      },
-      onClose() {
+    },
+    onClose() {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-      },
-    });
+    },
+});
  
   } catch (e) {
     alert('Terjadi kesalahan: ' + e.message);
@@ -375,5 +407,43 @@ async function bayarDP(btn) {
     btn.innerHTML = originalHTML;
   }
 }
+
+// Auto cek status kalau rental masih pending_payment
+@if($rental->status === 'pending_payment')
+(function autoCheckStatus() {
+    const csrfToken = "{{ csrf_token() }}";
+    const urlStatus  = "{{ route('payments.status', $rental) }}";
+    const urlSuccess = "{{ route('rentals.pay.success', $rental) }}";
+
+    const pollInterval = setInterval(async () => {
+        try {
+            const res  = await fetch(urlStatus, {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                clearInterval(pollInterval);
+                await fetch(urlSuccess, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_id: data.order_id,
+                        transaction_status: 'settlement',
+                        payment_type: 'qris',
+                    }),
+                });
+                window.location.reload();
+            }
+        } catch(e) {}
+    }, 3000);
+
+    // Stop setelah 30 menit
+    setTimeout(() => clearInterval(pollInterval), 30 * 60 * 1000);
+})();
+@endif
 </script>
 @endpush

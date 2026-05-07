@@ -45,29 +45,24 @@
       </div>
     </div>
 
-    <div class="ipb-card p-4 mb-4">
-      <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:16px;">Harga & Stok</div>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label-ipb">Harga/Hari (Rp) <span class="text-danger">*</span></label>
-          <input type="number" name="harga_per_hari" class="form-control form-control-ipb @error('harga_per_hari') is-invalid @enderror"
-            value="{{ old('harga_per_hari', $myItem->harga_per_hari) }}" min="0" required>
-          @error('harga_per_hari')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        </div>
-        <div class="col-md-4">
-          <label class="form-label-ipb">Deposit (Rp)</label>
-          <input type="number" name="deposit" class="form-control form-control-ipb @error('deposit') is-invalid @enderror"
-            value="{{ old('deposit', $myItem->deposit) }}" min="0">
-          @error('deposit')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        </div>
-        <div class="col-md-4">
-          <label class="form-label-ipb">Stok <span class="text-danger">*</span></label>
-          <input type="number" name="stok" class="form-control form-control-ipb @error('stok') is-invalid @enderror"
-            value="{{ old('stok', $myItem->stok) }}" min="1" required>
-          @error('stok')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        </div>
-      </div>
+   <div class="ipb-card p-4 mb-4">
+  <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:16px;">Harga & Stok</div>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label-ipb">Harga/Hari (Rp) <span class="text-danger">*</span></label>
+      <input type="number" name="harga_per_hari" class="form-control form-control-ipb @error('harga_per_hari') is-invalid @enderror"
+        value="{{ old('harga_per_hari', $myItem->harga_per_hari) }}" min="0" required>
+      @error('harga_per_hari')<div class="invalid-feedback">{{ $message }}</div>@enderror
+      <div style="font-size:11px; color:#7a8fa0; margin-top:4px;">DP otomatis 50% dari harga/hari</div>
     </div>
+    <div class="col-md-6">
+      <label class="form-label-ipb">Stok <span class="text-danger">*</span></label>
+      <input type="number" name="stok" class="form-control form-control-ipb @error('stok') is-invalid @enderror"
+        value="{{ old('stok', $myItem->stok) }}" min="1" required>
+      @error('stok')<div class="invalid-feedback">{{ $message }}</div>@enderror
+    </div>
+  </div>
+</div>
 
     <div class="ipb-card p-4 mb-4">
       <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:16px;">Foto Item</div>

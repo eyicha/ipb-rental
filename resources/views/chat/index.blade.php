@@ -253,8 +253,9 @@
       @php $partner = $conv['partner']; @endphp
       <a href="{{ route('chat.index', ['with' => $partner->id]) }}"
          class="conv-item-proto {{ request('with') == $partner->id ? 'active' : '' }}">
-        <div class="conv-avatar-proto">{{ $partner->initials }}</div>
-        <div class="conv-info-proto">
+<img src="{{ $partner->avatarUrl }}" 
+     style="width:50px; height:50px; border-radius:14px; object-fit:cover; flex-shrink:0;" 
+     alt="{{ $partner->initials }}">        <div class="conv-info-proto">
           <div class="conv-name-proto">{{ $partner->name }}</div>
           <div class="conv-preview-proto {{ ($conv['unreadCount'] ?? 0) > 0 ? 'fw-500' : '' }}">
             {{ $conv['lastMessage'] ? Str::limit($conv['lastMessage']->pesan, 38) : 'Mulai percakapan' }}
@@ -284,8 +285,9 @@
     {{-- Chat header --}}
     <div class="chat-header-proto">
       <div style="display:flex; align-items:center; gap:14px;">
-        <div class="chat-peer-avatar-proto">{{ $activePartner->initials }}</div>
-        <div>
+<img src="{{ $activePartner->avatarUrl }}" 
+     style="width:48px; height:48px; border-radius:14px; object-fit:cover; flex-shrink:0;" 
+     alt="{{ $activePartner->initials }}">        <div>
           <div class="chat-peer-name-proto">{{ $activePartner->name }}</div>
           <div class="chat-peer-status-proto">
             @if($activePartner->nim)
@@ -331,9 +333,9 @@
       @forelse($messages as $msg)
       @php $isMine = $msg->sender_id === auth()->id(); @endphp
       <div class="msg-row-proto {{ $isMine ? 'msg-row-proto--sent' : '' }}">
-        <div class="msg-avatar-proto" style="background:{{ $isMine ? 'var(--ipb-navy)' : 'var(--ipb-slate)' }};">
-          {{ $isMine ? auth()->user()->initials : $activePartner->initials }}
-        </div>
+      <img src="{{ $isMine ? auth()->user()->avatarUrl : $activePartner->avatarUrl }}"
+     style="width:32px; height:32px; border-radius:9px; object-fit:cover; flex-shrink:0;"
+     alt="{{ $isMine ? auth()->user()->initials : $activePartner->initials }}">
         <div class="msg-body-proto">
           <div class="msg-bubble-proto {{ $isMine ? 'msg-bubble-proto--sent' : '' }}">{{ $msg->pesan }}</div>
           <div class="msg-time-proto">{{ $msg->created_at->format('H:i') }}</div>

@@ -45,37 +45,39 @@ class MyItemController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nama'          => 'required|string|max:255',
-            'deskripsi'     => 'nullable|string',
-            'kategori'      => 'required|in:elektronik,fotografi,audio,drone,akademik,olahraga,perabot,kendaraan,lainnya',
-            'harga_per_hari'=> 'required|integer|min:1000',
-            'deposit'       => 'nullable|integer|min:0',
-            'stok'          => 'required|integer|min:1',
-            'foto.*'        => 'nullable|image|max:5120',
-        ]);
+{
+    $validated = $request->validate([
+        'nama'           => 'required|string|max:255',
+        'deskripsi'      => 'nullable|string',
+        'kategori'       => 'required|in:elektronik,fotografi,audio,drone,akademik,olahraga,perabot,kendaraan,lainnya',
+        'harga_per_hari' => 'required|integer|min:1000',
+        'stok'           => 'required|integer|min:1',
+        'foto.*'         => 'nullable|image|max:5120',
+    ]);
 
-        $fotos = [];
-        if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                $fotos[] = $file->store('items', 'public');
-            }
+    $fotos = [];
+    if ($request->hasFile('foto')) {
+        foreach ($request->file('foto') as $file) {
+            $fotos[] = $file->store('items', 'public');
         }
-
-        Auth::user()->items()->create([
-            'nama'           => $validated['nama'],
-            'deskripsi'      => $validated['deskripsi'] ?? null,
-            'kategori'       => $validated['kategori'],
-            'harga_per_hari' => $validated['harga_per_hari'],
-            'deposit'        => $validated['deposit'] ?? 0,
-            'stok'           => $validated['stok'],
-            'foto'           => $fotos,
-            'status'         => 'aktif',
-        ]);
-
-        return redirect()->route('my-items.index')->with('success', 'Item berhasil ditambahkan!');
     }
+
+    // Auto-hitung deposit = 50% harga/hari
+    $deposit = (int) round($validated['harga_per_hari'] * 0.5);
+
+    Auth::user()->items()->create([
+        'nama'           => $validated['nama'],
+        'deskripsi'      => $validated['deskripsi'] ?? null,
+        'kategori'       => $validated['kategori'],
+        'harga_per_hari' => $validated['harga_per_hari'],
+        'deposit'        => $deposit,
+        'stok'           => $validated['stok'],
+        'foto'           => $fotos,
+        'status'         => 'aktif',
+    ]);
+
+    return redirect()->route('my-items.index')->with('success', 'Item berhasil ditambahkan!');
+}
 
     public function edit(Item $myItem)
     {
@@ -85,38 +87,40 @@ class MyItemController extends Controller
     }
 
     public function update(Request $request, Item $myItem)
-    {
-        $this->authorizeItem($myItem);
+{
+    $this->authorizeItem($myItem);
 
-        $validated = $request->validate([
-            'nama'           => 'required|string|max:255',
-            'deskripsi'      => 'nullable|string',
-            'kategori'       => 'required|in:elektronik,fotografi,audio,drone,akademik,olahraga,perabot,kendaraan,lainnya',
-            'harga_per_hari' => 'required|integer|min:1000',
-            'deposit'        => 'nullable|integer|min:0',
-            'stok'           => 'required|integer|min:1',
-            'foto.*'         => 'nullable|image|max:5120',
-        ]);
+    $validated = $request->validate([
+        'nama'           => 'required|string|max:255',
+        'deskripsi'      => 'nullable|string',
+        'kategori'       => 'required|in:elektronik,fotografi,audio,drone,akademik,olahraga,perabot,kendaraan,lainnya',
+        'harga_per_hari' => 'required|integer|min:1000',
+        'stok'           => 'required|integer|min:1',
+        'foto.*'         => 'nullable|image|max:5120',
+    ]);
 
-        $fotos = $myItem->foto ?? [];
-        if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                $fotos[] = $file->store('items', 'public');
-            }
+    $fotos = $myItem->foto ?? [];
+    if ($request->hasFile('foto')) {
+        foreach ($request->file('foto') as $file) {
+            $fotos[] = $file->store('items', 'public');
         }
-
-        $myItem->update([
-            'nama'           => $validated['nama'],
-            'deskripsi'      => $validated['deskripsi'] ?? null,
-            'kategori'       => $validated['kategori'],
-            'harga_per_hari' => $validated['harga_per_hari'],
-            'deposit'        => $validated['deposit'] ?? 0,
-            'stok'           => $validated['stok'],
-            'foto'           => $fotos,
-        ]);
-
-        return redirect()->route('my-items.index')->with('success', 'Item berhasil diperbarui!');
     }
+
+    // Auto-hitung deposit = 50% harga/hari
+    $deposit = (int) round($validated['harga_per_hari'] * 0.5);
+
+    $myItem->update([
+        'nama'           => $validated['nama'],
+        'deskripsi'      => $validated['deskripsi'] ?? null,
+        'kategori'       => $validated['kategori'],
+        'harga_per_hari' => $validated['harga_per_hari'],
+        'deposit'        => $deposit,
+        'stok'           => $validated['stok'],
+        'foto'           => $fotos,
+    ]);
+
+    return redirect()->route('my-items.index')->with('success', 'Item berhasil diperbarui!');
+}
 
     public function destroy(Item $myItem)
     {

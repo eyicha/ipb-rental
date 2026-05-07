@@ -84,53 +84,58 @@ class PaymentController extends Controller
     ]);
 }
     public function checkStatus(\App\Models\Rental $rental)
-    {
-        try {
-            if ($rental->penyewa_id !== auth()->id()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            }
+{
+    try {
+        if ((string)$rental->penyewa_id !== (string)auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
-            // Find transaction for this rental DP payment
-            $payment = Transaction::where('item_id', $rental->item_id)
-                ->where('user_id', auth()->id())
-                ->where('created_at', '>=', $rental->created_at)
-                ->latest()
-                ->first();
+        $transaction = Transaction::where('rental_id', (string)$rental->_id)
+            ->where('user_id', (string)auth()->id())
+            ->latest()
+            ->first();
 
-            if (!$payment) {
-                // If no transaction found but rental is active, payment was completed
-                if ($rental->status === 'active') {
-                    return response()->json([
-                        'status' => 'success',
-                        'order_id' => 'N/A',
-                        'amount' => $rental->deposit,
-                    ]);
-                }
-                return response()->json(['error' => 'Payment not found'], 404);
-            }
+        if (!$transaction) {
+            return response()->json(['status' => 'not_found'], 404);
+        }
 
-            // Check payment status from Midtrans
-            $midtrans = new MidtransService();
-            $status = $midtrans->getTransactionStatus($payment->order_id);
+        // Kalau sudah success di DB, langsung return
+        if ($transaction->status === 'success') {
+            return response()->json([
+                'status'   => 'success',
+                'order_id' => $transaction->order_id,
+                'amount'   => $transaction->gross_amount,
+            ]);
+        }
 
-            // Update transaction if status changed
-            if ($status && isset($status['transaction_status'])) {
-                $transactionStatus = $status['transaction_status'];
-                
-                if ($rental && $rental->status === 'pending_payment') {
-    $rental->update(['status' => 'dp_paid']);
-}
-            }
+        // Cek ke Midtrans
+        $midtrans = new MidtransService();
+        $status   = $midtrans->getTransactionStatus($transaction->order_id);
+
+        if ($status && isset($status['transaction_status']) &&
+            in_array($status['transaction_status'], ['settlement', 'capture'])) {
+
+            $transaction->update(['status' => 'success']);
+            $rental->update(['status' => 'dp_paid']);
 
             return response()->json([
-                'status' => $payment->status,
-                'order_id' => $payment->order_id,
-                'amount' => $payment->gross_amount,
+                'status'   => 'success',
+                'order_id' => $transaction->order_id,
+                'amount'   => $transaction->gross_amount,
             ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
         }
+
+        return response()->json([
+            'status'   => $transaction->status,
+            'order_id' => $transaction->order_id,
+            'amount'   => $transaction->gross_amount,
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('checkStatus error: ' . $e->getMessage());
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
+}
 
     /**
      * Mock payment for testing - mark rental as paid without actual Midtrans
@@ -207,7 +212,7 @@ public function paySuccess(\App\Models\Rental $rental, Request $request)
                         ->first();
                     
                     if ($rental) {
-                        $rental->update(['status' => 'active']);
+                        $rental->update(['status' => 'dp_paid']);
                     }
                 } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
                     $transaction->update(['status' => 'failed']);

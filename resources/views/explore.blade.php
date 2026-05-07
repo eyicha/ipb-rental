@@ -173,14 +173,18 @@
     </div>
     <div class="hero-stat-divider"></div>
     <div>
-      <div class="hero-stat__number">340+</div>
-      <div class="hero-stat__label">Transaksi Sukses</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div>
-      <div class="hero-stat__number">4.8★</div>
-      <div class="hero-stat__label">Rating Platform</div>
-    </div>
+  <div class="hero-stat__number">{{ \App\Models\Rental::where('status','finished')->count() }}+</div>
+  <div class="hero-stat__label">Transaksi Sukses</div>
+</div>
+<div class="hero-stat-divider"></div>
+<div>
+  @php
+  $allRatings = \App\Models\Rental::whereNotNull('rating')->pluck('rating')->map(fn($r) => (int)$r);
+  $avgRating = $allRatings->count() > 0 ? number_format($allRatings->avg(), 1) : '—';
+@endphp
+<div class="hero-stat__number">{{ $avgRating }}★</div>
+<div class="hero-stat__label">Rating Platform</div>
+</div>
   </div>
 </section>
 
