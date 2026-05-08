@@ -56,6 +56,8 @@ class Rental extends Model
             'finished'          => 'bg-secondary',
             'cancelled'         => 'bg-danger',
             'declined'          => 'bg-danger',
+            // di getStatusBadgeAttribute()
+'overdue' => 'bg-danger',
         ];
         return $badges[$this->status] ?? 'bg-secondary';
     }
@@ -70,6 +72,7 @@ class Rental extends Model
             'finished'          => 'Selesai',
             'cancelled'         => 'Dibatalkan',
             'declined'          => 'Ditolak',
+            'overdue' => 'Terlambat Dikembalikan',
         ];
         return $labels[$this->status] ?? $this->status;
     }
@@ -80,10 +83,13 @@ class Rental extends Model
             'pending'           => 0,
             'pending_payment'   => 25,
             'dp_paid'           => 33,
+            'delivering'        => 50,
             'active'            => 67,
+            'returning'         => 83,
             'finished'          => 100,
             'cancelled'         => 0,
-            'declined'          => 0
+            'declined'          => 0,
+            'overdue' => 100
         ];
         return $steps[$this->status] ?? 0;
     }

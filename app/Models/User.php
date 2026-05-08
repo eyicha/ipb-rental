@@ -13,15 +13,16 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'name','nim','email','whatsapp','lokasi','avatar','role','password','rating_avg'
+        'name','nim','email','whatsapp','lokasi','avatar','role','password','rating_avg','is_blocked','blocked_reason'
     ];
 
     protected $hidden = ['password','remember_token'];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    'email_verified_at' => 'datetime',
+    'password'          => 'hashed',
+    'is_blocked'        => 'boolean', // ✅ Tambahkan ini
+];
 
     public function isAdmin(): bool
     {

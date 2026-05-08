@@ -55,6 +55,7 @@ class Report extends Model
             'barang_rusak'  => 'Kerusakan Barang',
             'tidak_sesuai'  => 'Tidak Sesuai Deskripsi',
             'keterlambatan' => 'Keterlambatan',
+            'klarifikasi' => 'Klarifikasi Pemblokiran',
             'lainnya'       => 'Lainnya',
         ];
         return $labels[$this->kategori] ?? $this->kategori;

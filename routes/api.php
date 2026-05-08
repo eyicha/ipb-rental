@@ -105,3 +105,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Webhook HARUS exclude dari CSRF & auth!
 Route::post('/midtrans/webhook', [MidtransController::class, 'webhook']);
+
+use App\Http\Controllers\Api\RecommendationController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    // ... route API yang sudah ada ...
+
+    Route::get('/recommendations', [RecommendationController::class, 'index'])
+        ->name('api.recommendations.index');
+});

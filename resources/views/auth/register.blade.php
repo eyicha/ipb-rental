@@ -50,11 +50,12 @@
                 @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
               </div>
               <div class="mb-3">
-                <label class="form-label-ipb">WhatsApp</label>
-                <input type="text" name="whatsapp" class="form-control form-control-ipb @error('whatsapp') is-invalid @enderror"
-                  placeholder="08xxxxxxxxxx" value="{{ old('whatsapp') }}">
-                @error('whatsapp')<div class="invalid-feedback">{{ $message }}</div>@enderror
-              </div>
+  <label class="form-label-ipb">WhatsApp <span class="text-danger">*</span></label>
+  <input type="text" name="whatsapp" class="form-control form-control-ipb @error('whatsapp') is-invalid @enderror"
+    placeholder="08xxxxxxxxxx" value="{{ old('whatsapp') }}" required>
+  <div style="font-size:11px; color:#7a8fa0; margin-top:4px;">Format: 08xx atau 628xx — digunakan untuk koordinasi sewa</div>
+  @error('whatsapp')<div class="invalid-feedback">{{ $message }}</div>@enderror
+</div>
               <div class="mb-3">
                 <label class="form-label-ipb">Password</label>
                 <input type="password" name="password" class="form-control form-control-ipb @error('password') is-invalid @enderror"

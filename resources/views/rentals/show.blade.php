@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Detail Rental')
- 
+
 @section('content')
 <div class="container py-4" style="max-width:800px;">
   <div class="d-flex align-items-center gap-3 mb-4">
@@ -13,7 +13,7 @@
     </div>
     <span class="badge {{ $rental->statusBadge }}" style="border-radius:10px; font-size:13px; font-weight:600; padding:8px 14px;">{{ $rental->statusLabel }}</span>
   </div>
- 
+
   {{-- ── Stepper ── --}}
   <div class="ipb-card p-4 mb-4">
     <div class="stepper-track mb-3" style="height:6px;">
@@ -32,7 +32,7 @@
       @endforeach
     </div>
   </div>
- 
+
   <div class="row g-4">
     {{-- ── Item Info ── --}}
     <div class="col-md-7">
@@ -50,43 +50,55 @@
           </div>
         </div>
       </div>
- 
+
       <div class="ipb-card p-4 mb-4">
         <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:14px;">Rincian</div>
         <div class="d-flex flex-column gap-2">
-          <div class="d-flex justify-content-between"><span style="font-size:13px; color:#7a8fa0;">Tanggal Mulai</span><span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">{{ \Carbon\Carbon::parse($rental->tanggal_mulai)->format('d M Y') }}</span></div>
-          <div class="d-flex justify-content-between"><span style="font-size:13px; color:#7a8fa0;">Tanggal Selesai</span><span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">{{ \Carbon\Carbon::parse($rental->tanggal_selesai)->format('d M Y') }}</span></div>
-          <div class="d-flex justify-content-between"><span style="font-size:13px; color:#7a8fa0;">Durasi</span><span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">{{ $rental->durasi_hari }} hari</span></div>
+          <div class="d-flex justify-content-between">
+            <span style="font-size:13px; color:#7a8fa0;">Tanggal Mulai</span>
+            <span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">{{ \Carbon\Carbon::parse($rental->tanggal_mulai)->format('d M Y') }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span style="font-size:13px; color:#7a8fa0;">Tanggal Selesai</span>
+            <span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">{{ \Carbon\Carbon::parse($rental->tanggal_selesai)->format('d M Y') }}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span style="font-size:13px; color:#7a8fa0;">Durasi</span>
+            <span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">{{ $rental->durasi_hari }} hari</span>
+          </div>
           <hr style="border-color:rgba(46,65,86,0.08); margin:4px 0;">
-          <div class="d-flex justify-content-between"><span style="font-size:13px; color:#7a8fa0;">Harga sewa</span><span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">Rp {{ number_format($rental->item->harga_per_hari * $rental->durasi_hari, 0, ',', '.') }}</span></div>
-          @if($rental->item->deposit > 0)
-          <div class="d-flex justify-content-between"><span style="font-size:13px; color:#7a8fa0;">Deposit</span><span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">Rp {{ number_format($rental->item->deposit, 0, ',', '.') }}</span></div>
+          <div class="d-flex justify-content-between">
+            <span style="font-size:13px; color:#7a8fa0;">Harga sewa</span>
+            <span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">Rp {{ number_format($rental->item->harga_per_hari * $rental->durasi_hari, 0, ',', '.') }}</span>
+          </div>
+          @if($rental->deposit > 0)
+          <div class="d-flex justify-content-between">
+            <span style="font-size:13px; color:#7a8fa0;">Deposit <span style="font-size:11px;">(tidak dikembalikan)</span></span>
+            <span style="font-size:13px; font-weight:600; color:var(--ipb-navy);">Rp {{ number_format($rental->deposit, 0, ',', '.') }}</span>
+          </div>
           @endif
-<div class="d-flex justify-content-between">
-  <span style="font-size:14px; font-weight:700; color:var(--ipb-navy);">Total Bayar</span>
-  <span style="font-size:16px; font-weight:800; color:var(--ipb-navy);">
-    Rp {{ number_format($rental->total_harga + $rental->deposit, 0, ',', '.') }}
-  </span>
-</div>
-<div style="font-size:11px; color:#7a8fa0; margin-top:6px; line-height:1.5;">
-  * Sudah termasuk deposit Rp {{ number_format($rental->deposit, 0, ',', '.') }} yang akan dikembalikan setelah barang kembali.
-</div>        </div>
+          <div class="d-flex justify-content-between">
+            <span style="font-size:14px; font-weight:700; color:var(--ipb-navy);">Total Bayar</span>
+            <span style="font-size:16px; font-weight:800; color:var(--ipb-navy);">
+              Rp {{ number_format($rental->total_harga, 0, ',', '.') }}            </span>
+          </div>
+        </div>
       </div>
- 
+
       @if($rental->catatan)
       <div class="ipb-card p-4 mb-4">
         <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:10px;">Catatan Penyewa</div>
         <p style="font-size:14px; color:#7a8fa0; margin:0; line-height:1.7;">{{ $rental->catatan }}</p>
       </div>
       @endif
- 
+
       @if($rental->bukti_dp)
       <div class="ipb-card p-4 mb-4">
         <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:10px;">Bukti DP</div>
         <img src="{{ Storage::url($rental->bukti_dp) }}" style="width:100%; border-radius:12px;" alt="Bukti DP">
       </div>
       @endif
- 
+
       @if($rental->status === 'finished' && $rental->rating)
       <div class="ipb-card p-4 mb-4">
         <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:10px;">Rating</div>
@@ -101,35 +113,47 @@
       </div>
       @endif
     </div>
- 
+
     {{-- ── Right: Parties + Actions ── --}}
-    <div class="col-md-5">
-      <div class="ipb-card p-4 mb-4">
-        <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:14px;">Penyewa</div>
-        <div class="d-flex align-items-center gap-3">
-          <img src="{{ $rental->penyewa->avatarUrl }}" style="width:42px; height:42px; border-radius:12px; object-fit:cover;" alt="">
-          <div>
-            <div style="font-weight:700; color:var(--ipb-navy); font-size:14px;">{{ $rental->penyewa->name }}</div>
-            @if($rental->penyewa->whatsapp)
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/','',$rental->penyewa->whatsapp) }}" target="_blank" style="font-size:12px; color:var(--ipb-green); text-decoration:none;"><i class="mdi mdi-whatsapp"></i> {{ $rental->penyewa->whatsapp }}</a>
-            @endif
-          </div>
-        </div>
+   <div class="ipb-card p-4 mb-4">
+  <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:14px;">Penyewa</div>
+  <div class="d-flex align-items-center gap-3">
+    <img src="{{ $rental->penyewa->avatarUrl }}"
+         style="width:42px; height:42px; border-radius:12px; object-fit:cover; cursor:pointer;"
+         onclick="document.getElementById('penyewaModal').style.display='flex'" alt="">
+    <div>
+      <div style="font-weight:700; color:var(--ipb-navy); font-size:14px; cursor:pointer;"
+           onclick="document.getElementById('penyewaModal').style.display='flex'">
+        {{ $rental->penyewa->name }}
       </div>
- 
+      @if($rental->penyewa->whatsapp)
+      <a href="https://wa.me/{{ preg_replace('/[^0-9]/','',$rental->penyewa->whatsapp) }}" target="_blank" style="font-size:12px; color:var(--ipb-green); text-decoration:none;">
+        <i class="mdi mdi-whatsapp"></i> {{ $rental->penyewa->whatsapp }}
+      </a>
+      @endif
+    </div>
+  </div>
+</div>
       <div class="ipb-card p-4 mb-4">
-        <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:14px;">Pemilik</div>
-        <div class="d-flex align-items-center gap-3">
-          <img src="{{ $rental->pemilik->avatarUrl }}" style="width:42px; height:42px; border-radius:12px; object-fit:cover;" alt="">
-          <div>
-            <div style="font-weight:700; color:var(--ipb-navy); font-size:14px;">{{ $rental->pemilik->name }}</div>
-            @if($rental->pemilik->whatsapp)
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/','',$rental->pemilik->whatsapp) }}" target="_blank" style="font-size:12px; color:var(--ipb-green); text-decoration:none;"><i class="mdi mdi-whatsapp"></i> {{ $rental->pemilik->whatsapp }}</a>
-            @endif
-          </div>
-        </div>
+  <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:14px;">Pemilik</div>
+  <div class="d-flex align-items-center gap-3">
+    <img src="{{ $rental->pemilik->avatarUrl }}"
+         style="width:42px; height:42px; border-radius:12px; object-fit:cover; cursor:pointer;"
+         onclick="document.getElementById('pemilikModal').style.display='flex'" alt="">
+    <div>
+      <div style="font-weight:700; color:var(--ipb-navy); font-size:14px; cursor:pointer;"
+           onclick="document.getElementById('pemilikModal').style.display='flex'">
+        {{ $rental->pemilik->name }}
       </div>
- 
+      @if($rental->pemilik->whatsapp)
+      <a href="https://wa.me/{{ preg_replace('/[^0-9]/','',$rental->pemilik->whatsapp) }}" target="_blank" style="font-size:12px; color:var(--ipb-green); text-decoration:none;">
+        <i class="mdi mdi-whatsapp"></i> {{ $rental->pemilik->whatsapp }}
+      </a>
+      @endif
+    </div>
+  </div>
+</div>
+
       {{-- ── Actions ── --}}
       @php
         $isPemilik = (string)auth()->id() === (string)$rental->pemilik_id;
@@ -137,10 +161,10 @@
       @endphp
       <div class="ipb-card p-4">
         <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:14px;">Aksi</div>
- 
+
         {{-- ═══════════════ PEMILIK ACTIONS ═══════════════ --}}
         @if($isPemilik)
- 
+
           @if($rental->status === 'pending')
           <form method="POST" action="{{ route('rentals.action', $rental) }}" class="mb-2">
             @csrf
@@ -159,7 +183,7 @@
             </button>
           </form>
           @endif
- 
+
           @if($rental->status === 'pending_payment')
           <div class="p-3 text-center" style="background:rgba(230,180,50,0.08); border-radius:10px; border:1px solid rgba(230,180,50,0.25);">
             <i class="mdi mdi-timer-sand" style="color:#b8860b; font-size:20px;"></i>
@@ -167,51 +191,73 @@
             <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Penyewa sedang melakukan pembayaran</div>
           </div>
           @endif
- 
+
           @if($rental->status === 'dp_paid')
+          @php $beforeStart = now()->lt(\Carbon\Carbon::parse($rental->tanggal_mulai)) @endphp
           <div class="p-3 text-center mb-2" style="background:rgba(90,154,120,0.08); border-radius:10px; border:1px solid rgba(90,154,120,0.2);">
             <i class="mdi mdi-cash-check" style="color:#5a9a78; font-size:20px;"></i>
             <div style="font-size:13px; font-weight:600; color:#2d6a4f; margin-top:4px;">DP Sudah Diterima</div>
-            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Silakan antarkan barang ke penyewa</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Silakan kirimkan barang ke penyewa</div>
           </div>
           <form method="POST" action="{{ route('rentals.action', $rental) }}">
             @csrf
             <input type="hidden" name="action" value="deliver">
             <button type="submit" class="btn btn-navy w-100 py-2" style="border-radius:10px; font-weight:700;"
-              onclick="return confirm('Konfirmasi barang sudah diantarkan?')">
-              <i class="mdi mdi-truck-delivery me-1"></i> Barang Sudah Diantar
+              onclick="return confirm('Konfirmasi barang sudah dikirim ke penyewa?')">
+              <i class="mdi mdi-truck-delivery me-1"></i> Kirim Barang
             </button>
           </form>
           @endif
- 
+
+          @if($rental->status === 'delivering')
+          <div class="p-3 text-center" style="background:rgba(86,124,141,0.08); border-radius:10px; border:1px solid rgba(86,124,141,0.2);">
+            <i class="mdi mdi-truck-delivery" style="color:var(--ipb-slate); font-size:20px;"></i>
+            <div style="font-size:13px; font-weight:600; color:var(--ipb-slate); margin-top:4px;">Barang Sedang Dikirim</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Menunggu konfirmasi penyewa</div>
+          </div>
+          @endif
+
           @if($rental->status === 'active')
-          <div class="p-3 text-center mb-2" style="background:rgba(86,124,141,0.08); border-radius:10px; border:1px solid rgba(86,124,141,0.2);">
+          <div class="p-3 text-center" style="background:rgba(86,124,141,0.08); border-radius:10px; border:1px solid rgba(86,124,141,0.2);">
             <i class="mdi mdi-package-variant" style="color:var(--ipb-slate); font-size:20px;"></i>
             <div style="font-size:13px; font-weight:600; color:var(--ipb-slate); margin-top:4px;">Barang Sedang Disewa</div>
-            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Konfirmasi saat barang sudah kembali</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Menunggu penyewa mengembalikan</div>
+          </div>
+          @endif
+
+          @if($rental->status === 'returning')
+          @php $isLate = now()->gt(\Carbon\Carbon::parse($rental->tanggal_selesai)->endOfDay()) @endphp
+          <div class="p-3 text-center mb-2" style="background:rgba(230,180,50,0.08); border-radius:10px; border:1px solid rgba(230,180,50,0.25);">
+            <i class="mdi mdi-keyboard-return" style="color:#b8860b; font-size:20px;"></i>
+            <div style="font-size:13px; font-weight:600; color:#7a5c00; margin-top:4px;">Penyewa Mengembalikan Barang</div>
+            @if($isLate)
+            <div style="font-size:12px; color:#c0766a; margin-top:2px; font-weight:600;">Pengembalian terlambat!</div>
+            @else
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Konfirmasi jika barang sudah kamu terima</div>
+            @endif
           </div>
           <form method="POST" action="{{ route('rentals.action', $rental) }}">
             @csrf
-            <input type="hidden" name="action" value="return_item">
+            <input type="hidden" name="action" value="confirm_return">
             <button type="submit" class="btn btn-navy w-100 py-2" style="border-radius:10px; font-weight:700;"
-              onclick="return confirm('Konfirmasi barang sudah dikembalikan?')">
-              <i class="mdi mdi-keyboard-return me-1"></i> Barang Sudah Kembali
+              onclick="return confirm('Konfirmasi barang sudah kamu terima kembali?')">
+              <i class="mdi mdi-check-circle me-1"></i> Konfirmasi Barang Diterima
             </button>
           </form>
           @endif
- 
+
           @if($rental->status === 'finished')
           <div class="p-3 text-center" style="background:rgba(90,154,120,0.08); border-radius:10px; border:1px solid rgba(90,154,120,0.2);">
             <i class="mdi mdi-check-circle" style="color:#5a9a78; font-size:20px;"></i>
             <div style="font-size:13px; font-weight:600; color:#2d6a4f; margin-top:4px;">Rental Selesai</div>
           </div>
           @endif
- 
+
         @endif {{-- end isPemilik --}}
- 
+
         {{-- ═══════════════ PENYEWA ACTIONS ═══════════════ --}}
         @if($isPenyewa)
- 
+
           @if($rental->status === 'pending')
           <form method="POST" action="{{ route('rentals.action', $rental) }}">
             @csrf
@@ -223,42 +269,77 @@
             </button>
           </form>
           @endif
- 
+
           @if($rental->status === 'pending_payment')
-@php
-  $dpPayment = \App\Models\Transaction::where('rental_id', (string)$rental->_id)
-    ->where('user_id', (string)auth()->id())
-    ->latest()->first();
-@endphp
-  @if(!$dpPayment || $dpPayment->status === 'pending')
-  <button onclick="bayarDP(this)" class="btn btn-navy w-100 py-2" style="border-radius:10px; font-weight:700;">
-    <i class="mdi mdi-credit-card me-1"></i> 
-    {{ $dpPayment ? 'Lanjutkan Pembayaran DP' : 'Bayar DP' }}
-  </button>
-  @elseif($dpPayment->status === 'success')
-  <div class="p-3 text-center" style="background:rgba(90,154,120,0.08); border-radius:10px; border:1px solid rgba(90,154,120,0.2);">
-    <i class="mdi mdi-check-circle" style="color:#5a9a78; font-size:20px;"></i>
-    <div style="font-size:13px; font-weight:600; color:#2d6a4f; margin-top:4px;">Pembayaran DP diterima</div>
-  </div>
-  @endif
-@endif
- 
+          @php
+            $dpPayment = \App\Models\Transaction::where('rental_id', (string)$rental->_id)
+              ->where('user_id', (string)auth()->id())
+              ->latest()->first();
+          @endphp
+            @if(!$dpPayment || $dpPayment->status === 'pending')
+            <button onclick="bayarDP(this)" class="btn btn-navy w-100 py-2" style="border-radius:10px; font-weight:700;">
+              <i class="mdi mdi-credit-card me-1"></i>
+              {{ $dpPayment ? 'Lanjutkan Pembayaran DP' : 'Bayar DP' }}
+            </button>
+            @elseif($dpPayment->status === 'success')
+            <div class="p-3 text-center" style="background:rgba(90,154,120,0.08); border-radius:10px; border:1px solid rgba(90,154,120,0.2);">
+              <i class="mdi mdi-check-circle" style="color:#5a9a78; font-size:20px;"></i>
+              <div style="font-size:13px; font-weight:600; color:#2d6a4f; margin-top:4px;">Pembayaran DP diterima</div>
+            </div>
+            @endif
+          @endif
+
           @if($rental->status === 'dp_paid')
           <div class="p-3 text-center" style="background:rgba(90,154,120,0.08); border-radius:10px; border:1px solid rgba(90,154,120,0.2);">
             <i class="mdi mdi-check-circle" style="color:#5a9a78; font-size:20px;"></i>
             <div style="font-size:13px; font-weight:600; color:#2d6a4f; margin-top:4px;">DP Sudah Dibayar</div>
-            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Menunggu pemilik mengantarkan barang</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Menunggu pemilik mengirimkan barang</div>
           </div>
           @endif
- 
+
+          @if($rental->status === 'delivering')
+          <div class="p-3 text-center mb-2" style="background:rgba(230,180,50,0.08); border-radius:10px; border:1px solid rgba(230,180,50,0.25);">
+            <i class="mdi mdi-truck-delivery" style="color:#b8860b; font-size:20px;"></i>
+            <div style="font-size:13px; font-weight:600; color:#7a5c00; margin-top:4px;">Barang Sedang Dikirim</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Konfirmasi jika barang sudah kamu terima</div>
+          </div>
+          <form method="POST" action="{{ route('rentals.action', $rental) }}">
+            @csrf
+            <input type="hidden" name="action" value="confirm_receive">
+            <button type="submit" class="btn btn-navy w-100 py-2" style="border-radius:10px; font-weight:700;"
+              onclick="return confirm('Konfirmasi barang sudah kamu terima?')">
+              <i class="mdi mdi-check me-1"></i> Konfirmasi Terima Barang
+            </button>
+          </form>
+          @endif
+
           @if($rental->status === 'active')
-          <div class="p-3 text-center" style="background:rgba(86,124,141,0.08); border-radius:10px; border:1px solid rgba(86,124,141,0.2);">
+          @php $beforeEnd = now()->lt(\Carbon\Carbon::parse($rental->tanggal_selesai)) @endphp
+          <div class="p-3 text-center mb-2" style="background:rgba(86,124,141,0.08); border-radius:10px; border:1px solid rgba(86,124,141,0.2);">
             <i class="mdi mdi-package-variant" style="color:var(--ipb-slate); font-size:20px;"></i>
             <div style="font-size:13px; font-weight:600; color:var(--ipb-slate); margin-top:4px;">Barang Sedang Disewa</div>
-            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Kembalikan barang tepat waktu</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">
+              Kembalikan sebelum {{ \Carbon\Carbon::parse($rental->tanggal_selesai)->format('d M Y') }}
+            </div>
+          </div>
+          <form method="POST" action="{{ route('rentals.action', $rental) }}">
+            @csrf
+            <input type="hidden" name="action" value="return_item">
+            <button type="submit" class="btn btn-navy w-100 py-2" style="border-radius:10px; font-weight:700;"
+              onclick="return confirm('Konfirmasi barang sudah dikembalikan?')">
+              <i class="mdi mdi-keyboard-return me-1"></i> Kembalikan Barang
+            </button>
+          </form>
+          @endif
+
+          @if($rental->status === 'returning')
+          <div class="p-3 text-center" style="background:rgba(230,180,50,0.08); border-radius:10px; border:1px solid rgba(230,180,50,0.25);">
+            <i class="mdi mdi-timer-sand" style="color:#b8860b; font-size:20px;"></i>
+            <div style="font-size:13px; font-weight:600; color:#7a5c00; margin-top:4px;">Menunggu Konfirmasi Pemilik</div>
+            <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Pemilik akan mengkonfirmasi penerimaan barang</div>
           </div>
           @endif
- 
+
           @if($rental->status === 'finished' && !$rental->rating)
           <form method="POST" action="{{ route('rentals.action', $rental) }}">
             @csrf
@@ -283,7 +364,7 @@
             </button>
           </form>
           @endif
- 
+
           @if($rental->status === 'finished' && $rental->rating)
           <div class="p-3 text-center" style="background:rgba(90,154,120,0.08); border-radius:10px; border:1px solid rgba(90,154,120,0.2);">
             <i class="mdi mdi-check-circle" style="color:#5a9a78; font-size:20px;"></i>
@@ -291,26 +372,130 @@
             <div style="font-size:12px; color:#7a8fa0; margin-top:2px;">Terima kasih sudah menggunakan IPB Rental!</div>
           </div>
           @endif
- 
+
         @endif {{-- end isPenyewa --}}
- 
+
         {{-- ═══════════════ TOMBOL CHAT ═══════════════ --}}
-        @if(in_array($rental->status, ['active','dp_paid','finished']))
+        @if(in_array($rental->status, ['delivering','active','returning','finished','dp_paid']))
         <a href="{{ route('chat.index', ['with' => $isPemilik ? $rental->penyewa_id : $rental->pemilik_id]) }}"
           class="btn btn-outline-navy w-100 py-2 mt-2" style="border-radius:10px; font-weight:600;">
           <i class="mdi mdi-chat-outline me-1"></i> Chat
         </a>
         @endif
- 
+
       </div>
-    </div>{{-- end row --}}
+    </div>{{-- end col-md-5 --}}
+  </div>{{-- end row --}}
 </div>{{-- end container --}}
+{{-- ── Modal Penyewa ── --}}
+@php
+  $penyewaRating   = round($rental->penyewa->rating_avg ?? 0, 1);
+  $penyewaTotalSewa = \App\Models\Rental::where('penyewa_id', $rental->penyewa->id)->where('status','finished')->count();
+@endphp
+<div id="penyewaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9999; align-items:center; justify-content:center;"
+     onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff; border-radius:20px; padding:32px; width:min(420px,90vw); box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <img src="{{ $rental->penyewa->avatarUrl }}" style="width:64px; height:64px; border-radius:16px; object-fit:cover;" alt="">
+      <div>
+        <div style="font-weight:700; color:var(--ipb-navy); font-size:18px;">{{ $rental->penyewa->name }}</div>
+        @if($rental->penyewa->nim)<div style="font-size:13px; color:#7a8fa0;">NIM: {{ $rental->penyewa->nim }}</div>@endif
+        @if($rental->penyewa->lokasi)<div style="font-size:13px; color:#7a8fa0;"><i class="mdi mdi-map-marker-outline"></i> {{ $rental->penyewa->lokasi }}</div>@endif
+      </div>
+    </div>
+    <div class="d-flex gap-3 mb-4">
+      <div style="flex:1; text-align:center; background:#f7f7f5; border-radius:12px; padding:12px;">
+        <div style="font-size:22px; font-weight:700; color:var(--ipb-navy);">{{ $penyewaTotalSewa }}</div>
+        <div style="font-size:11px; color:#7a8fa0; margin-top:2px;">Total Sewa</div>
+      </div>
+      <div style="flex:1; text-align:center; background:#f7f7f5; border-radius:12px; padding:12px;">
+        @if($rental->penyewa->whatsapp)
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/','',$rental->penyewa->whatsapp) }}" target="_blank"
+           style="display:flex; flex-direction:column; align-items:center; text-decoration:none;">
+          <i class="mdi mdi-whatsapp" style="font-size:24px; color:#25D366;"></i>
+          <div style="font-size:11px; color:#7a8fa0; margin-top:4px;">WhatsApp</div>
+        </a>
+        @else
+        <div style="font-size:11px; color:#7a8fa0;">Tidak ada WA</div>
+        @endif
+      </div>
+    </div>
+    <button onclick="document.getElementById('penyewaModal').style.display='none'"
+      style="width:100%; padding:13px; border-radius:12px; border:1px solid rgba(46,65,86,0.1); background:#fff; font-family:var(--font-body,'DM Sans',sans-serif); font-size:14px; color:#7a8fa0; cursor:pointer;">
+      Tutup
+    </button>
+  </div>
+</div>
+
+{{-- ── Modal Pemilik ── --}}
+@php
+  $pemilikRating    = round($rental->pemilik->rating_avg ?? 0, 1);
+  $pemilikTotalSewa = \App\Models\Rental::where('pemilik_id', $rental->pemilik->id)->where('status','finished')->count();
+  $pemilikReviews   = \App\Models\Rental::where('pemilik_id', $rental->pemilik->id)->whereNotNull('rating')->whereNotNull('ulasan')->latest()->take(3)->get();
+@endphp
+<div id="pemilikModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9999; align-items:center; justify-content:center;"
+     onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff; border-radius:20px; padding:32px; width:min(420px,90vw); box-shadow:0 20px 60px rgba(0,0,0,.2); max-height:90vh; overflow-y:auto;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <img src="{{ $rental->pemilik->avatarUrl }}" style="width:64px; height:64px; border-radius:16px; object-fit:cover;" alt="">
+      <div>
+        <div style="font-weight:700; color:var(--ipb-navy); font-size:18px;">{{ $rental->pemilik->name }}</div>
+        @if($rental->pemilik->nim)<div style="font-size:13px; color:#7a8fa0;">NIM: {{ $rental->pemilik->nim }}</div>@endif
+        @if($rental->pemilik->lokasi)<div style="font-size:13px; color:#7a8fa0;"><i class="mdi mdi-map-marker-outline"></i> {{ $rental->pemilik->lokasi }}</div>@endif
+      </div>
+    </div>
+
+    <div class="d-flex gap-3 mb-4">
+      <div style="flex:1; text-align:center; background:#f7f7f5; border-radius:12px; padding:12px;">
+        <div style="font-size:22px; font-weight:700; color:var(--ipb-navy);">{{ $pemilikRating > 0 ? $pemilikRating : '—' }}</div>
+        <div style="font-size:11px; color:#7a8fa0; margin-top:2px;">Rating</div>
+        @if($pemilikRating > 0)
+        <div style="margin-top:4px;">
+          @for($i=1; $i<=5; $i++)
+          <i class="mdi mdi-star{{ $i <= $pemilikRating ? '' : '-outline' }}" style="color:var(--ipb-gold); font-size:12px;"></i>
+          @endfor
+        </div>
+        @endif
+      </div>
+      <div style="flex:1; text-align:center; background:#f7f7f5; border-radius:12px; padding:12px;">
+        <div style="font-size:22px; font-weight:700; color:var(--ipb-navy);">{{ $pemilikTotalSewa }}</div>
+        <div style="font-size:11px; color:#7a8fa0; margin-top:2px;">Transaksi Selesai</div>
+      </div>
+      <div style="flex:1; text-align:center; background:#f7f7f5; border-radius:12px; padding:12px;">
+        <div style="font-size:22px; font-weight:700; color:var(--ipb-navy);">{{ $rental->pemilik->items()->where('status','aktif')->count() }}</div>
+        <div style="font-size:11px; color:#7a8fa0; margin-top:2px;">Item Aktif</div>
+      </div>
+    </div>
+
+    @if($pemilikReviews->count() > 0)
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:10px;">Ulasan Terbaru</div>
+      @foreach($pemilikReviews as $review)
+      <div style="padding:10px 14px; background:#f7f7f5; border-radius:10px; margin-bottom:8px;">
+        <div class="d-flex align-items-center gap-1 mb-1">
+          @for($i=1; $i<=5; $i++)
+          <i class="mdi mdi-star{{ $i <= $review->rating ? '' : '-outline' }}" style="color:var(--ipb-gold); font-size:12px;"></i>
+          @endfor
+          <span style="font-size:11px; color:#7a8fa0; margin-left:4px;">{{ $review->penyewa->name }}</span>
+        </div>
+        <div style="font-size:13px; color:#7a8fa0;">{{ $review->ulasan }}</div>
+      </div>
+      @endforeach
+    </div>
+    @endif
+
+    <button onclick="document.getElementById('pemilikModal').style.display='none'"
+      style="width:100%; padding:13px; border-radius:12px; border:1px solid rgba(46,65,86,0.1); background:#fff; font-family:var(--font-body,'DM Sans',sans-serif); font-size:14px; color:#7a8fa0; cursor:pointer;">
+      Tutup
+    </button>
+  </div>
+</div>
 @endsection
- 
+
 @push('scripts')
 <script src="https://app.sandbox.midtrans.com/snap/snap.js"
   data-client-key="{{ config('midtrans.client_key') }}"></script>
- 
+
 <script>
 function setRating(val) {
   document.getElementById('ratingInput').value = val;
@@ -319,17 +504,17 @@ function setRating(val) {
     el.style.color = i < val ? 'var(--ipb-gold)' : 'rgba(46,65,86,0.2)';
   });
 }
- 
+
 async function bayarDP(btn) {
   const originalHTML = btn.innerHTML;
   const urlCheckout  = "{{ route('rentals.pay', $rental) }}";
   const urlSuccess   = "{{ route('rentals.pay.success', $rental) }}";
   const csrfToken    = "{{ csrf_token() }}";
- 
+
   try {
     btn.disabled = true;
     btn.innerHTML = '<i class="mdi mdi-loading mdi-spin me-1"></i> Memproses...';
- 
+
     const res  = await fetch(urlCheckout, {
       method: 'POST',
       headers: {
@@ -339,68 +524,66 @@ async function bayarDP(btn) {
       },
     });
     const data = await res.json();
- 
+
     if (!res.ok || !data.snap_token) {
       alert(data.error ?? 'Gagal mendapatkan token pembayaran');
       btn.disabled = false;
       btn.innerHTML = originalHTML;
       return;
     }
- 
+
     window.snap.pay(data.snap_token, {
-    onSuccess(result) {
+      onSuccess(result) {
         fetch(urlSuccess, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                order_id:           result.order_id,
-                transaction_status: result.transaction_status,
-                payment_type:       result.payment_type,
-            }),
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            order_id:           result.order_id,
+            transaction_status: result.transaction_status,
+            payment_type:       result.payment_type,
+          }),
         }).finally(() => window.location.reload());
-    },
-    onPending() {
+      },
+      onPending() {
         const pollInterval = setInterval(async () => {
-            try {
-                const statusRes = await fetch('{{ route('payments.status', $rental) }}', {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const statusData = await statusRes.json();
-
-                if (statusData.status === 'success') {
-                    clearInterval(pollInterval);
-                    fetch('{{ route('rentals.pay.success', $rental) }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            order_id: statusData.order_id,
-                            transaction_status: 'settlement',
-                            payment_type: 'qris',
-                        }),
-                    }).finally(() => window.location.reload());
-                }
-            } catch(e) {}
+          try {
+            const statusRes = await fetch('{{ route('payments.status', $rental) }}', {
+              headers: { 'Accept': 'application/json' }
+            });
+            const statusData = await statusRes.json();
+            if (statusData.status === 'success') {
+              clearInterval(pollInterval);
+              fetch('{{ route('rentals.pay.success', $rental) }}', {
+                method: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': csrfToken,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  order_id: statusData.order_id,
+                  transaction_status: 'settlement',
+                  payment_type: 'qris',
+                }),
+              }).finally(() => window.location.reload());
+            }
+          } catch(e) {}
         }, 3000);
-
         setTimeout(() => clearInterval(pollInterval), 15 * 60 * 1000);
-    },
-    onError(result) {
+      },
+      onError(result) {
         alert('Pembayaran gagal: ' + (result.status_message ?? 'Unknown error'));
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-    },
-    onClose() {
+      },
+      onClose() {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-    },
-});
- 
+      },
+    });
+
   } catch (e) {
     alert('Terjadi kesalahan: ' + e.message);
     btn.disabled = false;
@@ -411,38 +594,31 @@ async function bayarDP(btn) {
 // Auto cek status kalau rental masih pending_payment
 @if($rental->status === 'pending_payment')
 (function autoCheckStatus() {
-    const csrfToken = "{{ csrf_token() }}";
-    const urlStatus  = "{{ route('payments.status', $rental) }}";
-    const urlSuccess = "{{ route('rentals.pay.success', $rental) }}";
+  const csrfToken = "{{ csrf_token() }}";
+  const urlStatus  = "{{ route('payments.status', $rental) }}";
+  const urlSuccess = "{{ route('rentals.pay.success', $rental) }}";
 
-    const pollInterval = setInterval(async () => {
-        try {
-            const res  = await fetch(urlStatus, {
-                headers: { 'Accept': 'application/json' }
-            });
-            const data = await res.json();
+  const pollInterval = setInterval(async () => {
+    try {
+      const res  = await fetch(urlStatus, { headers: { 'Accept': 'application/json' } });
+      const data = await res.json();
+      if (data.status === 'success') {
+        clearInterval(pollInterval);
+        await fetch(urlSuccess, {
+          method: 'POST',
+          headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: data.order_id,
+            transaction_status: 'settlement',
+            payment_type: 'qris',
+          }),
+        });
+        window.location.reload();
+      }
+    } catch(e) {}
+  }, 3000);
 
-            if (data.status === 'success') {
-                clearInterval(pollInterval);
-                await fetch(urlSuccess, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        order_id: data.order_id,
-                        transaction_status: 'settlement',
-                        payment_type: 'qris',
-                    }),
-                });
-                window.location.reload();
-            }
-        } catch(e) {}
-    }, 3000);
-
-    // Stop setelah 30 menit
-    setTimeout(() => clearInterval(pollInterval), 30 * 60 * 1000);
+  setTimeout(() => clearInterval(pollInterval), 30 * 60 * 1000);
 })();
 @endif
 </script>

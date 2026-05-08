@@ -16,6 +16,7 @@
       <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
       <option value="diproses" {{ request('status') === 'diproses' ? 'selected' : '' }}>Diproses</option>
       <option value="selesai" {{ request('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
+      <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
     </select>
     <button type="submit" class="btn btn-sm btn-navy px-4" style="border-radius:10px;">Filter</button>
     @if(request('status'))

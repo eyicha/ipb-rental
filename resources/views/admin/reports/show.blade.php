@@ -40,7 +40,7 @@
     {{-- ── Update Form ── --}}
     <div class="ipb-card p-4">
       <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ipb-slate); margin-bottom:16px;">Tindakan Admin</div>
-      <form method="POST" action="{{ route('admin.reports.update', $report) }}">
+      <form id="form-update-report" method="POST" action="{{ route('admin.reports.update', $report) }}">
         @csrf @method('PATCH')
         <div class="mb-3">
           <label class="form-label-ipb">Status</label>
@@ -48,6 +48,7 @@
             <option value="pending" {{ $report->status === 'pending' ? 'selected' : '' }}>Pending</option>
             <option value="diproses" {{ $report->status === 'diproses' ? 'selected' : '' }}>Diproses</option>
             <option value="selesai" {{ $report->status === 'selesai' ? 'selected' : '' }}>Selesai</option>
+            <option value="ditolak" {{ $report->status === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
           </select>
         </div>
         <div class="mb-4">
@@ -55,9 +56,9 @@
           <textarea name="balasan_admin" class="form-control form-control-ipb" rows="4"
             placeholder="Tulis balasan untuk pelapor...">{{ old('balasan_admin', $report->balasan_admin) }}</textarea>
         </div>
-        <button type="submit" class="btn btn-navy px-5 py-2" style="border-radius:12px; font-weight:700;">
-          <i class="mdi mdi-check me-1"></i> Simpan
-        </button>
+        <button type="button" id="btn-simpan" class="btn btn-navy px-5 py-2" style="border-radius:12px; font-weight:700;">
+    <i class="mdi mdi-check me-1"></i> Simpan
+</button>
       </form>
     </div>
   </div>
@@ -98,4 +99,49 @@
     @endif
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById('btn-simpan').addEventListener('click', function () {
+    const status        = document.querySelector('select[name="status"]').value;
+    const isKlarifikasi = {{ $report->kategori === 'klarifikasi' ? 'true' : 'false' }};
+    const terlapor      = "{{ $report->terlapor->name ?? 'User' }}";
+
+    let title, text, icon, confirmColor;
+
+    if (status === 'ditolak') {
+        title        = 'Tolak Laporan?';
+        text         = isKlarifikasi
+                        ? `Klarifikasi ${terlapor} akan ditolak. User tidak akan bisa melakukan rental lagi!`
+                        : 'Laporan ini akan ditolak.';
+        icon         = 'warning';
+        confirmColor = '#d33';
+    } else if (status === 'selesai') {
+        title        = 'Selesaikan Laporan?';
+        text         = isKlarifikasi
+                        ? `Klarifikasi ${terlapor} disetujui. User akan bisa melakukan rental kembali!`
+                        : 'Laporan ini akan ditandai selesai.';
+        icon         = 'question';
+        confirmColor = '#2e7d32';
+    } else {
+        // status pending/diproses — langsung submit tanpa konfirmasi
+        document.getElementById('form-update-report').submit();
+        return;
+    }
+
+    Swal.fire({
+        title,
+        text,
+        icon,
+        showCancelButton  : true,
+        confirmButtonColor: confirmColor,
+        cancelButtonText  : 'Batal',
+        confirmButtonText : 'Ya, Lanjutkan',
+    }).then(result => {
+        if (result.isConfirmed) {
+            document.getElementById('form-update-report').submit();
+        }
+    });
+});
+</script>
 @endsection

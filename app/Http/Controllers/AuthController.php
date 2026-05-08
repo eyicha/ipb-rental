@@ -41,35 +41,61 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users',
-            'nim'      => 'nullable|string|max:20|unique:users',
-            'password' => ['required', 'confirmed', Password::min(6)],
-        ]);
+{
+    $validated = $request->validate([
+    'name'     => 'required|string|max:255',
+    'nim'      => 'required|string|max:20',
+    'email'    => 'required|email|unique:users',
+    'whatsapp' => ['required', 'string', 'min:10', 'max:15', 'regex:/^(08|628)[0-9]{8,12}$/'],
+    'password' => ['required', 'confirmed', Password::min(6)],
+]);
 
-        // Cek apakah email terdaftar di whitelist @apps.ipb.ac.id
-        if (!EmailVerification::isEmailWhitelisted($validated['email'])) {
-            return back()->withErrors([
-                'email' => 'Email tidak terdaftar di sistem IPB. Hanya email @apps.ipb.ac.id yang terdaftar dapat mendaftar.'
-            ])->onlyInput('email', 'name', 'nim');
-        }
+    // Cek email terdaftar di whitelist
+    $verification = EmailVerification::where('email', $validated['email'])->first();
 
-        $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'nim'      => $validated['nim'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'role'     => 'user',
-        ]);
-
-        // Update status email sebagai verified
-        EmailVerification::where('email', $validated['email'])->update(['is_verified' => true]);
-
-        Auth::login($user);
-        return redirect()->route('my-items.index')->with('success', 'Akun berhasil dibuat! Selamat datang, ' . $user->name . '!');
+    if (!$verification) {
+        return back()->withErrors([
+            'email' => 'Email tidak terdaftar di sistem IPB.'
+        ])->onlyInput('name', 'nim', 'email', 'whatsapp');
     }
+
+    // Cek NIM cocok dengan email di database
+    if ($verification->nim !== $validated['nim']) {
+        return back()->withErrors([
+            'nim' => 'NIM tidak sesuai dengan email yang terdaftar.'
+        ])->onlyInput('name', 'nim', 'email', 'whatsapp');
+    }
+
+    // Cek NIM belum dipakai user lain
+    if (User::where('nim', $validated['nim'])->exists()) {
+        return back()->withErrors([
+            'nim' => 'NIM sudah terdaftar, akun mungkin sudah pernah dibuat.'
+        ])->onlyInput('name', 'nim', 'email', 'whatsapp');
+    }
+
+    // Cek email sudah verified (sudah pernah daftar)
+    // Cek email sudah verified DAN user masih ada
+if ($verification->is_verified && User::where('email', $validated['email'])->exists()) {
+    return back()->withErrors([
+        'email' => 'Email ini sudah pernah digunakan untuk mendaftar.'
+    ])->onlyInput('name', 'nim', 'email', 'whatsapp');
+}
+    $user = User::create([
+        'name'     => $validated['name'],
+        'email'    => $validated['email'],
+        'nim'      => $validated['nim'],
+        'whatsapp' => $validated['whatsapp'] ?? null,
+        'password' => Hash::make($validated['password']),
+        'role'     => 'user',
+    ]);
+
+    EmailVerification::where('email', $validated['email'])
+        ->update(['is_verified' => true]);
+
+    Auth::login($user);
+    return redirect()->route('my-items.index')
+        ->with('success', 'Akun berhasil dibuat! Selamat datang, ' . $user->name . '!');
+}
 
     public function logout(Request $request)
     {

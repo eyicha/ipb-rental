@@ -87,3 +87,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/verifications',                  [Admin\VerificationController::class, 'index'])->name('verifications.index');
     Route::patch('/verifications/{verification}', [Admin\VerificationController::class, 'update'])->name('verifications.update');
 });
+
+use App\Http\Controllers\RecommendationController;
+
+// Dalam middleware auth
+Route::middleware('auth')->group(function () {
+    // ... route yang sudah ada ...
+
+    Route::get('/recommendations', [RecommendationController::class, 'index'])
+        ->name('recommendations.index');
+
+    Route::post('/recommendations/preferences', [RecommendationController::class, 'updatePreferences'])
+        ->name('recommendations.preferences');
+});

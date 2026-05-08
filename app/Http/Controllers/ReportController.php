@@ -22,32 +22,38 @@ class ReportController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'kategori'    => 'required|in:penipuan,barang_rusak,tidak_sesuai,keterlambatan,lainnya',
-            'deskripsi'   => 'required|string',
-            'terlapor_id' => 'nullable|exists:users,id',
-            'rental_id'   => 'nullable|exists:rentals,id',
-            'bukti.*'     => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-        ]);
+{
+    $validated = $request->validate([
+'kategori' => 'required|in:penipuan,barang_rusak,tidak_sesuai,keterlambatan,klarifikasi,lainnya',        'deskripsi'   => 'required|string',
+        'terlapor_id' => 'nullable|exists:users,id',
+        'rental_id'   => 'nullable|exists:rentals,id',
+        'bukti.*'     => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+    ]);
 
-        $buktis = [];
-        if ($request->hasFile('bukti')) {
-            foreach ($request->file('bukti') as $file) {
-                $buktis[] = $file->store('reports', 'public');
-            }
+    $buktis = [];
+    if ($request->hasFile('bukti')) {
+        foreach ($request->file('bukti') as $file) {
+            $buktis[] = $file->store('reports', 'public');
         }
-
-        Report::create([
-            'reporter_id' => Auth::id(),
-            'terlapor_id' => $validated['terlapor_id'] ?? null,
-            'rental_id'   => $validated['rental_id'] ?? null,
-            'kategori'    => $validated['kategori'],
-            'deskripsi'   => $validated['deskripsi'],
-            'bukti'       => $buktis,
-            'status'      => 'pending',
-        ]);
-
-        return redirect()->route('report.index')->with('success', 'Laporan berhasil dikirim! Tim kami akan merespons dalam 1×24 jam.');
     }
+
+    // ✅ Laporan keterlambatan dari user yang diblokir:
+    //    terlapor_id = diri sendiri agar admin bisa unblock
+    $terlapor_id = $validated['terlapor_id'] ?? null;
+    if (in_array($validated['kategori'], ['keterlambatan', 'klarifikasi']) && !$terlapor_id) {
+    $terlapor_id = Auth::id();
+}
+    Report::create([
+        'reporter_id' => Auth::id(),
+        'terlapor_id' => $terlapor_id,
+        'rental_id'   => $validated['rental_id'] ?? null,
+        'kategori'    => $validated['kategori'],
+        'deskripsi'   => $validated['deskripsi'],
+        'bukti'       => $buktis,
+        'status'      => 'pending',
+    ]);
+
+    return redirect()->route('report.index')
+        ->with('success', 'Laporan berhasil dikirim! Tim kami akan merespons dalam 1×24 jam.');
+}
 }
